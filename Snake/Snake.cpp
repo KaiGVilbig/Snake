@@ -334,7 +334,7 @@ void LoadImages() {
     modelBitmaps[PLAYER_UP] = (HBITMAP)LoadImage(NULL, L"images/snake_UP.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[PLAYER_DOWN] = (HBITMAP)LoadImage(NULL, L"images/snake_DOWN.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[PLAYER_LEFT] = (HBITMAP)LoadImage(NULL, L"images/snake_LEFT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[PLAYER_RIGHT] = (HBITMAP)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_SNAKE_RIGHT), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
+    modelBitmaps[PLAYER_RIGHT] = (HBITMAP)LoadImage(NULL, L"images/snake_RIGHT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[BODY] = (HBITMAP)LoadImage(NULL, L"images/snake_body.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[FOOD_BANANA] = (HBITMAP)LoadImage(NULL, L"images/banana.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[FOOD_APPLE] = (HBITMAP)LoadImage(NULL, L"images/apple.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
