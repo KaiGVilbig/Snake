@@ -2,6 +2,7 @@
 //
 
 #include <string>
+#include <ctime>
 
 #include "framework.h"
 #include "Snake.h"
@@ -24,7 +25,21 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+void                LoadImages();
+Coords              getValidCoords(int, int);
+
+enum Models {
+    PLAYER_UP, PLAYER_DOWN, PLAYER_LEFT, PLAYER_RIGHT,
+    BODY,
+    FOOD_BANANA, FOOD_APPLE, FOOD_WATERMELON,
+    NUM_MODELS
+};
+
+
+HBITMAP modelBitmaps[NUM_MODELS];
+
 Player player;
+Food food;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -35,7 +50,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: Place code here.
-    player = Player();
+    LoadImages();
+    // Seed the random number generator once at the start of your program
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -65,8 +82,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     player.~Player();
     return (int) msg.wParam;
 }
-
-
 
 //
 //  FUNCTION: MyRegisterClass()
@@ -165,9 +180,60 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             RECT window;
             GetClientRect(hWnd, &window);
 
-            Coords loc = player.getCoords();
-            Rectangle(hdc, loc.left, loc.top, loc.right, loc.bottom);
+            // Spawn food if there is none
+            if (!food.getSpawned()) {
+                player = Player(getValidCoords(window.right, window.bottom));
 
+                Coords newFoodLoc = getValidCoords(window.right, window.bottom);
+                int top = newFoodLoc.top + ((player.getSize() - food.getSize()) / 2);
+                int left = newFoodLoc.left + ((player.getSize() - food.getSize()) / 2);
+                food = Food(top, left);
+            }
+
+            // Draw food
+            Coords foodLoc = food.getCoord();
+            Rectangle(hdc, foodLoc.left, foodLoc.top, foodLoc.right, foodLoc.bottom);
+
+            // Draw player
+            Coords loc = player.getCoords();
+           
+            // Get correct orientation of head
+            HBITMAP head;
+            switch (player.getDirection()) {
+                case UP:
+                    head = modelBitmaps[PLAYER_UP];
+                    break;
+                case DOWN:
+                    head = modelBitmaps[PLAYER_DOWN];
+                    break;
+                case LEFT:
+                    head = modelBitmaps[PLAYER_LEFT];
+                    break;
+                case RIGHT:
+                    head = modelBitmaps[PLAYER_RIGHT];
+                    break;
+                default:
+                    head = modelBitmaps[PLAYER_RIGHT];
+                    break;
+            }
+
+            // Render head
+            if (head) {
+                HDC hMemDC = CreateCompatibleDC(hdc);
+                HBITMAP hOldMap = (HBITMAP)SelectObject(hMemDC, head);
+
+                BITMAP bitmap;
+                GetObject(head, sizeof(BITMAP), &bitmap);
+                
+                StretchBlt(hdc, loc.left, loc.top, player.getSize(), player.getSize(), hMemDC, 0, 0,bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+
+                // Clean up
+                SelectObject(hMemDC, hOldMap);
+                DeleteDC(hMemDC);
+            }
+
+
+            // Display score  & deathMsg
             if (player.getHealth() > 0) {
                 // Display score
                 std::wstring scoreText = L"Score: " + std::to_wstring(player.getScore()) + L"\n" + 
@@ -187,6 +253,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         KillTimer(hWnd, IDT_TIMER1);
+
+        // Clean up models
+        for (int i = 0; i < NUM_MODELS; i++) {
+            if (modelBitmaps[i] != NULL) {
+                DeleteObject(modelBitmaps[i]);
+                modelBitmaps[i] = NULL;
+            }
+        }
         PostQuitMessage(0);
         break;
 
@@ -219,10 +293,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (!player.checkBoundry(window.right, window.bottom)) {
                     player.dealDamage();
 
-                    int newTop = std::rand() % (window.bottom - player.getSize() * 5);
-                    int newLeft = std::rand() % (window.right - player.getSize() * 5);
+                    Coords newPlayerLoc = getValidCoords(window.right, window.bottom);
 
-                    player.resetPlayerLoc(newTop, newLeft);
+                    player.resetPlayerLoc(newPlayerLoc.top, newPlayerLoc.left);
                     if (player.getHealth() <= 0) {
                         KillTimer(hWnd, IDT_TIMER1);
                     }
@@ -255,4 +328,32 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void LoadImages() {
+    modelBitmaps[PLAYER_UP] = (HBITMAP)LoadImage(NULL, L"images/snake_UP.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[PLAYER_DOWN] = (HBITMAP)LoadImage(NULL, L"images/snake_DOWN.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[PLAYER_LEFT] = (HBITMAP)LoadImage(NULL, L"images/snake_LEFT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[PLAYER_RIGHT] = (HBITMAP)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_SNAKE_RIGHT), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
+    modelBitmaps[BODY] = (HBITMAP)LoadImage(NULL, L"images/snake_body.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[FOOD_BANANA] = (HBITMAP)LoadImage(NULL, L"images/banana.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[FOOD_APPLE] = (HBITMAP)LoadImage(NULL, L"images/apple.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[FOOD_WATERMELON] = (HBITMAP)LoadImage(NULL, L"images/watermelon.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+}
+
+// Get valid coord for respawn
+Coords getValidCoords(int windowWidth, int windowHeight) {
+    int playerSize = player.getSize();
+
+    // Make sure player doesn't spawn right on edge
+    int maxTop = int(windowHeight / playerSize) - 5;
+    int minTop = 5;
+    int maxLeft = int(windowWidth / playerSize) - 5;
+    int minLeft = 5;
+
+    int newTop = (std::rand() % (maxTop - minTop) + minTop) * playerSize;
+    int newLeft = (std::rand() % (maxLeft - minLeft) + minLeft) * playerSize;
+    Coords coord = { newTop, newLeft, newTop + playerSize, newLeft + playerSize };
+
+    return coord;
 }

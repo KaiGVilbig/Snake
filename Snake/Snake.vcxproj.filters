@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Images">
+      <UniqueIdentifier>{dc60966d-79f8-40ec-8a9c-00aa7a90146c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -30,12 +33,18 @@
     <ClInclude Include="Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Food.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Snake.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Food.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,6 +59,30 @@
     </Image>
     <Image Include="Snake.ico">
       <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\Snake_RIGHT.bmp">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Images\Watermelon.bmp">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Images\Snake_UP.bmp">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Images\Snake_body.bmp">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Images\Snake_DOWN.bmp">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Images\Snake_LEFT.bmp">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Images\Banana.bmp">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="Images\Apple.bmp">
+      <Filter>Images</Filter>
     </Image>
   </ItemGroup>
 </Project>

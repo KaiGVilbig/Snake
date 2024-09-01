@@ -1,61 +1,19 @@
 #include "Player.h"
 #include <cstdlib>
 
-Player::Player() {
+Player::Player(){}
 
+Player::Player(Coords coords) {
+	coord = coords;
 }
 
 Player::~Player() {
 
 }
 
-void Player::dealDamage() {
-	health -= dmgAmount;
-}
-
-void Player::eat() {
-	length += 1;
-}
-
-void Player::movePlayer(Direction direction) {
-
-	switch (direction) {
-		case UP:
-			top -= size;
-			bottom -= size;
-			break;
-
-		case DOWN:
-			top += size;
-			bottom += size;
-			break;
-
-		case LEFT:
-			left -= size;
-			right -= size;
-			break;
-
-		case RIGHT:
-			left += size;
-			right += size;
-			break;
-	}
-	currDir = direction;
-}
-
-bool Player::checkBoundry(int windowWidth, int windowHeight) {
-	bool inside = true;
-
-	if (top < 0 || left < 0 || bottom > windowHeight || right > windowWidth) {
-		inside = false;
-	}
-
-	return inside;
-}
 
 Coords Player::getCoords() {
-	Coords playerLoc = { top, left, bottom, right };
-	return playerLoc;
+	return coord;
 }
 
 Direction Player::getDirection() {
@@ -70,15 +28,68 @@ int Player::getHealth() {
 	return health;
 }
 
-void Player::resetPlayerLoc(int newTop, int newLeft) {
-	top = newTop;
-	left = newLeft;
-	bottom = top + size;
-	right = left + size;
-	
-	currDir = static_cast<Direction>(std::rand() % RIGHT);
-}
-
 int Player::getSize() {
 	return size;
+}
+
+
+void Player::dealDamage() {
+	health -= dmgAmount;
+}
+
+void Player::eat() {
+	length += 1;
+}
+
+void Player::movePlayer(Direction direction) {
+
+	switch (direction) {
+		case UP:
+			if (currDir != DOWN) {
+				coord.top -= size;
+				coord.bottom -= size;
+				currDir = direction;
+			}
+			break;
+
+		case DOWN:
+			if (currDir != UP) {
+				coord.top += size;
+				coord.bottom += size;
+				currDir = direction;
+			}
+			break;
+
+		case LEFT:
+			if (currDir != RIGHT) {
+				coord.left -= size;
+				coord.right -= size;
+				currDir = direction;
+			}
+			break;
+
+		case RIGHT:
+			if (currDir != LEFT) {
+				coord.left += size;
+				coord.right += size;
+				currDir = direction;
+			}
+			break;
+	}
+}
+
+bool Player::checkBoundry(int windowWidth, int windowHeight) {
+	bool inside = true;
+
+	if (coord.top < 0 || coord.left < 0 || coord.bottom > windowHeight || coord.right > windowWidth) {
+		inside = false;
+	}
+
+	return inside;
+}
+
+void Player::resetPlayerLoc(int newTop, int newLeft) {
+	coord = { newTop, newLeft, newTop + size, newLeft + size };
+	
+	currDir = static_cast<Direction>(std::rand() % RIGHT);
 }

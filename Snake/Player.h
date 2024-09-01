@@ -1,11 +1,12 @@
 #pragma once
+#include "Food.h"
 
 enum Direction { UP, DOWN, LEFT, RIGHT };
-struct Coords { int top; int left; int bottom; int right; };
 
 class Player {
 	public:
 		Player();
+		Player(Coords);
 		~Player();
 
 		// Getters
@@ -24,10 +25,7 @@ class Player {
 	private:
 		// Character
 		int size = 20;
-		int top = 10;
-		int left = 10;
-		int bottom = top + size;
-		int right = left + size;
+		Coords coord;
 
 		// Game
 		int health = 100;
