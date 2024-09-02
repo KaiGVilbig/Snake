@@ -26,9 +26,11 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 void                LoadImages();
+void                LoadSounds();
 Coords              getValidCoords(int, int);
 
 HBITMAP modelBitmaps[NUM_MODELS];
+std::wstring sounds[NUM_SOUNDS];
 
 Player player;
 Body body;
@@ -44,6 +46,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // TODO: Place code here.
     LoadImages();
+    LoadSounds();
     // Seed the random number generator once at the start of your program
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
@@ -309,6 +312,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 std::wstring gameOverText = L"Game Over\nFinal Score: " + std::to_wstring(player.getScore());
                 RECT textRect = { window.right / 2 -50, window.bottom / 2 - 10, window.right / 2 + 400, window.bottom / 2 + 80 };
                 DrawText(hdc, gameOverText.c_str(), -1, &textRect, DT_LEFT | DT_TOP | DT_WORDBREAK);
+                PlaySound(sounds[GAME_OVER].c_str(), NULL, SND_FILENAME | SND_ASYNC);
             }
 
 
@@ -358,6 +362,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 // Check if player hit wall
                 if (!player.checkBoundry(window.right, window.bottom) || player.checkIntersect(body.getHead())) {
                     player.dealDamage();
+                    PlaySound(sounds[DAMAGE].c_str(), NULL, SND_FILENAME | SND_ASYNC);
                     body.~Body();
 
                     Coords newPlayerLoc = getValidCoords(window.right, window.bottom);
@@ -376,6 +381,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     food.newCoords(top, left, newModel);
 
                     player.eat();
+                    PlaySound(sounds[EAT].c_str(), NULL, SND_FILENAME | SND_ASYNC);
 
                     Node* last = body.getHead();
                     if (last == nullptr) {
@@ -448,6 +454,12 @@ void LoadImages() {
     modelBitmaps[FOOD_WATERMELON] = (HBITMAP)LoadImage(NULL, L"images/foods/watermelon.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[FOOD_PINEAPPLE] = (HBITMAP)LoadImage(NULL, L"images/foods/pineapple.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[FOOD_PUMPKIN] = (HBITMAP)LoadImage(NULL, L"images/foods/pumpkin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+}
+
+void LoadSounds() {
+    sounds[EAT] = L"sounds/eat.wav";
+    sounds[DAMAGE] = L"sounds/oof.wav";
+    sounds[GAME_OVER] = L"sounds/game_over.wav";
 }
 
 // Get valid coord for respawn

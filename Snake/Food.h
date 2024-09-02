@@ -17,7 +17,7 @@ class Food {
 
 	private:
 		Coords coord;
-		int size = 20;
+		int size = 38;
 		bool spawned = false;
 		Models model;
 };

@@ -8,4 +8,9 @@ enum Models {
     NUM_MODELS
 };
 
+enum Sounds {
+    EAT, DAMAGE, GAME_OVER,
+    NUM_SOUNDS
+};
+
 enum Direction { UP, DOWN, LEFT, RIGHT };
