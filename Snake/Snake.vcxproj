@@ -147,14 +147,6 @@
     <ResourceCompile Include="Snake.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Images\Apple.bmp" />
-    <Image Include="Images\Banana.bmp" />
-    <Image Include="Images\Snake_body.bmp" />
-    <Image Include="Images\Snake_DOWN.bmp" />
-    <Image Include="Images\Snake_LEFT.bmp" />
-    <Image Include="Images\Snake_RIGHT.bmp" />
-    <Image Include="Images\Snake_UP.bmp" />
-    <Image Include="Images\Watermelon.bmp" />
     <Image Include="small.ico" />
     <Image Include="Snake.ico" />
   </ItemGroup>

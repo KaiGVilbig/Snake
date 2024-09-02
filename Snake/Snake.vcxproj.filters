@@ -72,29 +72,5 @@
     <Image Include="Snake.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Images\Snake_RIGHT.bmp">
-      <Filter>Images</Filter>
-    </Image>
-    <Image Include="Images\Watermelon.bmp">
-      <Filter>Images</Filter>
-    </Image>
-    <Image Include="Images\Snake_UP.bmp">
-      <Filter>Images</Filter>
-    </Image>
-    <Image Include="Images\Snake_body.bmp">
-      <Filter>Images</Filter>
-    </Image>
-    <Image Include="Images\Snake_DOWN.bmp">
-      <Filter>Images</Filter>
-    </Image>
-    <Image Include="Images\Snake_LEFT.bmp">
-      <Filter>Images</Filter>
-    </Image>
-    <Image Include="Images\Banana.bmp">
-      <Filter>Images</Filter>
-    </Image>
-    <Image Include="Images\Apple.bmp">
-      <Filter>Images</Filter>
-    </Image>
   </ItemGroup>
 </Project>

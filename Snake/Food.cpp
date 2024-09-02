@@ -5,7 +5,7 @@ Food::Food(){}
 
 Food::Food(int newTop, int newLeft) {
 	coord = { newTop, newLeft, newTop + 10, newLeft + 10 };
-	model = static_cast<Models>(std::rand() % (FOOD_WATERMELON - FOOD_BANANA + 1) + FOOD_BANANA);
+	model = static_cast<Models>(std::rand() % (FOOD_PUMPKIN - FOOD_BANANA + 1) + FOOD_BANANA);
 	spawned = true;
 }
 

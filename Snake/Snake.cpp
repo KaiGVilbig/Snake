@@ -208,19 +208,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             HBITMAP head;
             switch (player.getDirection()) {
                 case UP:
-                    head = modelBitmaps[PLAYER_UP];
+                    head = (player.getLength() == 0) ? modelBitmaps[PLAYER_UP_0] : modelBitmaps[PLAYER_UP];
                     break;
                 case DOWN:
-                    head = modelBitmaps[PLAYER_DOWN];
+                    head = (player.getLength() == 0) ? modelBitmaps[PLAYER_DOWN_0] : modelBitmaps[PLAYER_DOWN];
                     break;
                 case LEFT:
-                    head = modelBitmaps[PLAYER_LEFT];
+                    head = (player.getLength() == 0) ? modelBitmaps[PLAYER_LEFT_0] : modelBitmaps[PLAYER_LEFT];
                     break;
                 case RIGHT:
-                    head = modelBitmaps[PLAYER_RIGHT];
-                    break;
                 default:
-                    head = modelBitmaps[PLAYER_RIGHT];
+                    head = (player.getLength() == 0) ? modelBitmaps[PLAYER_RIGHT_0] : modelBitmaps[PLAYER_RIGHT];
                     break;
             }
 
@@ -374,7 +372,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     Coords newFoodLoc = getValidCoords(window.right, window.bottom);
                     int top = newFoodLoc.top + ((player.getSize() - food.getSize()) / 2);
                     int left = newFoodLoc.left + ((player.getSize() - food.getSize()) / 2);
-                    Models newModel = static_cast<Models>(std::rand() % (FOOD_WATERMELON - FOOD_BANANA + 1) + FOOD_BANANA);
+                    Models newModel = static_cast<Models>(std::rand() % (FOOD_PUMPKIN - FOOD_BANANA + 1) + FOOD_BANANA);
                     food.newCoords(top, left, newModel);
 
                     player.eat();
@@ -421,18 +419,35 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 void LoadImages() {
-    modelBitmaps[PLAYER_UP] = (HBITMAP)LoadImage(NULL, L"images/snake_UP.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[PLAYER_DOWN] = (HBITMAP)LoadImage(NULL, L"images/snake_DOWN.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[PLAYER_LEFT] = (HBITMAP)LoadImage(NULL, L"images/snake_LEFT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[PLAYER_RIGHT] = (HBITMAP)LoadImage(NULL, L"images/snake_RIGHT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[BODY] = (HBITMAP)LoadImage(NULL, L"images/snake_body_filled.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[TAIL_UP] = (HBITMAP)LoadImage(NULL, L"images/snake_tail_UP.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[TAIL_DOWN] = (HBITMAP)LoadImage(NULL, L"images/snake_tail_DOWN.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[TAIL_LEFT] = (HBITMAP)LoadImage(NULL, L"images/snake_tail_LEFT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[TAIL_RIGHT] = (HBITMAP)LoadImage(NULL, L"images/snake_tail_RIGHT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[FOOD_BANANA] = (HBITMAP)LoadImage(NULL, L"images/banana.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[FOOD_APPLE] = (HBITMAP)LoadImage(NULL, L"images/apple.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[FOOD_WATERMELON] = (HBITMAP)LoadImage(NULL, L"images/watermelon.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    // Load head
+    modelBitmaps[PLAYER_UP] = (HBITMAP)LoadImage(NULL, L"images/player/snake_UP.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[PLAYER_UP_0] = (HBITMAP)LoadImage(NULL, L"images/player/snake_UP_0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+    modelBitmaps[PLAYER_DOWN] = (HBITMAP)LoadImage(NULL, L"images/player/snake_DOWN.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[PLAYER_DOWN_0] = (HBITMAP)LoadImage(NULL, L"images/player/snake_DOWN_0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+    modelBitmaps[PLAYER_LEFT] = (HBITMAP)LoadImage(NULL, L"images/player/snake_LEFT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[PLAYER_LEFT_0] = (HBITMAP)LoadImage(NULL, L"images/player/snake_LEFT_0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+    modelBitmaps[PLAYER_RIGHT] = (HBITMAP)LoadImage(NULL, L"images/player/snake_RIGHT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[PLAYER_RIGHT_0] = (HBITMAP)LoadImage(NULL, L"images/player/snake_RIGHT_0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+
+    // Load Body
+    modelBitmaps[BODY] = (HBITMAP)LoadImage(NULL, L"images/player/snake_body_filled.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+    // Load tail
+    modelBitmaps[TAIL_UP] = (HBITMAP)LoadImage(NULL, L"images/player/snake_tail_UP.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[TAIL_DOWN] = (HBITMAP)LoadImage(NULL, L"images/player/snake_tail_DOWN.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[TAIL_LEFT] = (HBITMAP)LoadImage(NULL, L"images/player/snake_tail_LEFT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[TAIL_RIGHT] = (HBITMAP)LoadImage(NULL, L"images/player/snake_tail_RIGHT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+    // Load foods
+    modelBitmaps[FOOD_BANANA] = (HBITMAP)LoadImage(NULL, L"images/foods/banana.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[FOOD_APPLE] = (HBITMAP)LoadImage(NULL, L"images/foods/apple.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[FOOD_WATERMELON] = (HBITMAP)LoadImage(NULL, L"images/foods/watermelon.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[FOOD_PINEAPPLE] = (HBITMAP)LoadImage(NULL, L"images/foods/pineapple.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[FOOD_PUMPKIN] = (HBITMAP)LoadImage(NULL, L"images/foods/pumpkin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 }
 
 // Get valid coord for respawn
