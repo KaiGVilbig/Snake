@@ -11,7 +11,7 @@
 
 #define MAX_LOADSTRING 100
 #define IDT_TIMER1 1
-#define TIMER_INTERVAL 200
+#define TIMER_INTERVAL 1000
 #define ID_EDITBOX 101
 
 // Global Variables:
@@ -28,17 +28,10 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 void                LoadImages();
 Coords              getValidCoords(int, int);
 
-enum Models {
-    PLAYER_UP, PLAYER_DOWN, PLAYER_LEFT, PLAYER_RIGHT,
-    BODY,
-    FOOD_BANANA, FOOD_APPLE, FOOD_WATERMELON,
-    NUM_MODELS
-};
-
-
 HBITMAP modelBitmaps[NUM_MODELS];
 
 Player player;
+Body body;
 Food food;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -192,7 +185,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             // Draw food
             Coords foodLoc = food.getCoord();
-            Rectangle(hdc, foodLoc.left, foodLoc.top, foodLoc.right, foodLoc.bottom);
+            HBITMAP foodModel = modelBitmaps[food.getModel()];
+
+            if (foodModel) {
+                HDC hMemDC = CreateCompatibleDC(hdc);
+                HBITMAP hOldMap = (HBITMAP)SelectObject(hMemDC, foodModel);
+
+                BITMAP bitmap;
+                GetObject(foodModel, sizeof(BITMAP), &bitmap);
+
+                StretchBlt(hdc, foodLoc.left, foodLoc.top, food.getSize(), food.getSize(), hMemDC, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+
+                // Clean up
+                SelectObject(hMemDC, hOldMap);
+                DeleteDC(hMemDC);
+            }
 
             // Draw player
             Coords loc = player.getCoords();
@@ -232,6 +239,60 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DeleteDC(hMemDC);
             }
 
+            // Add body
+            if (player.getLength() > 0) {
+
+                // Get top of list
+                Node* index = body.getHead();
+
+                // traverse body
+                while (index != nullptr) {
+                    HBITMAP bodyModel;
+
+                    // if end, show tail
+                    if (index->next != nullptr) {
+                        bodyModel = modelBitmaps[BODY];
+                    }
+                    else {
+                        switch (index->nextDirection) {
+                            case UP:
+                                bodyModel = modelBitmaps[TAIL_UP];
+                                break;
+                            case DOWN:
+                                bodyModel = modelBitmaps[TAIL_DOWN];
+                                break;
+                            case LEFT:
+                                bodyModel = modelBitmaps[TAIL_LEFT];
+                                break;
+                            case RIGHT:
+                                bodyModel = modelBitmaps[TAIL_RIGHT];
+                                break;
+                            default:
+                                bodyModel = modelBitmaps[TAIL_RIGHT];
+                                break;
+                        }
+                    }
+
+                    // Render body
+                    if (bodyModel) {
+                        HDC hMemDC = CreateCompatibleDC(hdc);
+                        HBITMAP hOldMap = (HBITMAP)SelectObject(hMemDC, bodyModel);
+
+                        BITMAP bitmap;
+                        GetObject(bodyModel, sizeof(BITMAP), &bitmap);
+
+                        Coords bodyCoord = index->coords;
+
+                        StretchBlt(hdc, bodyCoord.left, bodyCoord.top, player.getSize(), player.getSize(), hMemDC, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+
+                        // Clean up
+                        SelectObject(hMemDC, hOldMap);
+                        DeleteDC(hMemDC);
+                    }
+                    index = index->next;
+                }
+
+            }
 
             // Display score  & deathMsg
             if (player.getHealth() > 0) {
@@ -267,18 +328,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     // Keyboard controls
     case WM_KEYDOWN:
         {
+            Node* head = body.getHead();
             switch (wParam) {
                 case VK_UP:
-                    player.movePlayer(UP);
+                    player.changeDirection(UP, head);
                     break;
                 case VK_LEFT:
-                    player.movePlayer(LEFT);
+                    player.changeDirection(LEFT, head);
                     break;
                 case VK_DOWN:
-                    player.movePlayer(DOWN);
+                    player.changeDirection(DOWN, head);
                     break;
                 case VK_RIGHT:
-                    player.movePlayer(RIGHT);
+                    player.changeDirection(RIGHT, head);
                     break;
             }
         }
@@ -289,7 +351,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             GetClientRect(hWnd, &window);
 
             if (wParam == IDT_TIMER1) {
-                player.movePlayer(player.getDirection());
+                player.movePlayer(player.getDirection(), body.getHead());
+
+                // Check if player hit wall
                 if (!player.checkBoundry(window.right, window.bottom)) {
                     player.dealDamage();
 
@@ -300,6 +364,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         KillTimer(hWnd, IDT_TIMER1);
                     }
                 }
+                if (player.checkEat(food.getCoord())) {
+                    // Spawn new food
+                    Coords newFoodLoc = getValidCoords(window.right, window.bottom);
+                    int top = newFoodLoc.top + ((player.getSize() - food.getSize()) / 2);
+                    int left = newFoodLoc.left + ((player.getSize() - food.getSize()) / 2);
+                    Models newModel = static_cast<Models>(std::rand() % (FOOD_WATERMELON - FOOD_BANANA + 1) + FOOD_BANANA);
+                    food.newCoords(top, left, newModel);
+
+                    player.eat();
+
+                    Node* last = body.getHead();
+                    if (last == nullptr) {
+                        body.addNode(player.getLastCoord(), player.getCoords(), player.getLastDirection(), player.getDirection());
+                    }
+                    else {
+                        last = body.getTail();
+                        body.addNode(last->coords, last->nextCoord, last->nextDirection, last->nextDirection);
+                        player.validataDirection(body.getHead());
+                    }
+                }
+
                 InvalidateRect(hWnd, nullptr, TRUE);
             }
         }
@@ -335,7 +420,11 @@ void LoadImages() {
     modelBitmaps[PLAYER_DOWN] = (HBITMAP)LoadImage(NULL, L"images/snake_DOWN.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[PLAYER_LEFT] = (HBITMAP)LoadImage(NULL, L"images/snake_LEFT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[PLAYER_RIGHT] = (HBITMAP)LoadImage(NULL, L"images/snake_RIGHT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    modelBitmaps[BODY] = (HBITMAP)LoadImage(NULL, L"images/snake_body.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[BODY] = (HBITMAP)LoadImage(NULL, L"images/snake_body_filled.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[TAIL_UP] = (HBITMAP)LoadImage(NULL, L"images/snake_tail_UP.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[TAIL_DOWN] = (HBITMAP)LoadImage(NULL, L"images/snake_tail_DOWN.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[TAIL_LEFT] = (HBITMAP)LoadImage(NULL, L"images/snake_tail_LEFT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    modelBitmaps[TAIL_RIGHT] = (HBITMAP)LoadImage(NULL, L"images/snake_tail_RIGHT.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[FOOD_BANANA] = (HBITMAP)LoadImage(NULL, L"images/banana.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[FOOD_APPLE] = (HBITMAP)LoadImage(NULL, L"images/apple.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     modelBitmaps[FOOD_WATERMELON] = (HBITMAP)LoadImage(NULL, L"images/watermelon.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);

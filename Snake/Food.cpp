@@ -5,6 +5,7 @@ Food::Food(){}
 
 Food::Food(int newTop, int newLeft) {
 	coord = { newTop, newLeft, newTop + 10, newLeft + 10 };
+	model = static_cast<Models>(std::rand() % (FOOD_WATERMELON - FOOD_BANANA + 1) + FOOD_BANANA);
 	spawned = true;
 }
 
@@ -22,6 +23,11 @@ int Food::getSize() {
 	return size;
 }
 
-void Food::newCoords(int newTop, int newLeft) {
+Models Food::getModel() {
+	return model;
+}
+
+void Food::newCoords(int newTop, int newLeft, Models newModel) {
 	coord = { newTop, newLeft, newTop + 10, newLeft + 10 };
+	model = newModel;
 }

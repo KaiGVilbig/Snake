@@ -1,6 +1,6 @@
 #pragma once
-
-struct Coords { int top; int left; int bottom; int right; };
+#include "Enums.h"
+#include "Coords.h"
 
 class Food {
 	public:
@@ -11,11 +11,13 @@ class Food {
 		Coords getCoord();
 		bool getSpawned();
 		int getSize();
+		Models getModel();
 
-		void newCoords(int, int);
+		void newCoords(int, int, Models);
 
 	private:
 		Coords coord;
-		int size = 10;
+		int size = 20;
 		bool spawned = false;
+		Models model;
 };
