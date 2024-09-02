@@ -18,13 +18,16 @@ class Player {
 		int getHealth();
 		int getSize();
 		int getLength();
+		bool getJustAte();
+
+		void setJustAte(bool);
 
 		void dealDamage();
 		void eat();
 		void changeDirection(Direction, Node*);
-		void validataDirection(Node*);
 		void movePlayer(Direction, Node*);
 		bool checkBoundry(int, int);
+		bool checkIntersect(Node*);
 		void resetPlayerLoc(int, int);
 		bool checkEat(Coords);
 
@@ -41,4 +44,5 @@ class Player {
 		Direction currDir = RIGHT;
 		Direction lastDirection = RIGHT;
 		int score = 0;
+		bool justAte = false;
 };

@@ -9,6 +9,7 @@ struct Node {
 	Direction nextDirection;
 
 	struct Node* next;
+	struct Node* prev;
 };
 
 class Body {

@@ -44,14 +44,24 @@ int Player::getLength() {
 	return length;
 }
 
+bool Player::getJustAte() {
+	return justAte;
+}
+
+void Player::setJustAte(bool ate) {
+	justAte = ate;
+}
+
 
 void Player::dealDamage() {
 	health -= dmgAmount;
+	length = 0;
 }
 
 void Player::eat() {
 	length += 1;
 	score += 1;
+	justAte = true;
 }
 
 void Player::changeDirection(Direction direction, Node* head) {
@@ -76,20 +86,6 @@ void Player::changeDirection(Direction direction, Node* head) {
 				currDir = direction;
 			}
 			break;
-	}
-
-}
-
-void Player::validataDirection(Node* head) {
-	Direction next = currDir;
-	Direction curr = lastDirection;
-	while (head != nullptr) {
-		head->direction = curr;
-		head->nextDirection = next;
-
-		curr = next;
-		next = head->direction;
-		head = head->next;
 	}
 }
 
@@ -156,6 +152,20 @@ bool Player::checkBoundry(int windowWidth, int windowHeight) {
 	}
 
 	return inside;
+}
+
+bool Player::checkIntersect(Node* head) {
+	bool crashed = false;
+
+	while (head != nullptr) {
+		if (coord == head->coords) {
+			crashed = true;
+			return crashed;
+		}
+		head = head->next;
+	}
+
+	return crashed;
 }
 
 void Player::resetPlayerLoc(int newTop, int newLeft) {

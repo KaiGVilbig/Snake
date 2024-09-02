@@ -25,6 +25,7 @@ void Body::addNode(Coords curr, Coords next, Direction direct, Direction nextDir
 	temp->next = nullptr;
 	temp->direction = direct;
 	temp->nextDirection = nextDir;
+	temp->prev = tail;
 
 	if (head == nullptr) {
 		head = temp;

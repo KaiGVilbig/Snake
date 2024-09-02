@@ -11,7 +11,7 @@
 
 #define MAX_LOADSTRING 100
 #define IDT_TIMER1 1
-#define TIMER_INTERVAL 1000
+#define TIMER_INTERVAL 200
 #define ID_EDITBOX 101
 
 // Global Variables:
@@ -254,7 +254,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         bodyModel = modelBitmaps[BODY];
                     }
                     else {
-                        switch (index->nextDirection) {
+                        Direction check = index->nextDirection;
+                        if (index->prev != nullptr && player.getJustAte()) {
+                            player.setJustAte(false);
+                            check = index->prev->nextDirection;
+                        }
+                        switch (check) {
                             case UP:
                                 bodyModel = modelBitmaps[TAIL_UP];
                                 break;
@@ -351,11 +356,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             GetClientRect(hWnd, &window);
 
             if (wParam == IDT_TIMER1) {
-                player.movePlayer(player.getDirection(), body.getHead());
 
                 // Check if player hit wall
-                if (!player.checkBoundry(window.right, window.bottom)) {
+                if (!player.checkBoundry(window.right, window.bottom) || player.checkIntersect(body.getHead())) {
                     player.dealDamage();
+                    body.~Body();
 
                     Coords newPlayerLoc = getValidCoords(window.right, window.bottom);
 
@@ -381,9 +386,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     else {
                         last = body.getTail();
                         body.addNode(last->coords, last->nextCoord, last->nextDirection, last->nextDirection);
-                        player.validataDirection(body.getHead());
                     }
                 }
+                player.movePlayer(player.getDirection(), body.getHead());
 
                 InvalidateRect(hWnd, nullptr, TRUE);
             }
